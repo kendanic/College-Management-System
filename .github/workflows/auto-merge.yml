@@ -23,7 +23,7 @@ jobs:
           destination_branch: "develop"
           pr_title: "Auto PR: Merge feature/* → develop"
           pr_body: "Automatically created PR to merge feature code into develop"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   merge_feature_to_develop:
     needs: feature_to_develop
@@ -40,7 +40,7 @@ jobs:
             gh pr merge "$PR_NUM" --squash --admin --delete-branch --yes
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   develop_to_main:
     needs: merge_feature_to_develop
@@ -56,7 +56,7 @@ jobs:
           destination_branch: "main"
           pr_title: "Auto PR: Merge develop → main"
           pr_body: "Auto promote develop to main after feature merge"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
   merge_develop_to_main:
     needs: develop_to_main
@@ -70,4 +70,4 @@ jobs:
             gh pr merge "$PR_NUM" --squash --admin --delete-branch --yes
           fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
