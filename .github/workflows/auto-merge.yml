@@ -1,10 +1,10 @@
-name: Auto PR and Merge: feature → develop → main
+name: "Auto PR and Merge: feature → develop → main"
 
 on:
   push:
     branches:
       - feature/*
-
+  
 jobs:
   feature_to_develop:
     runs-on: ubuntu-latest
@@ -12,12 +12,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Create PR: feature → develop
+      - name: Create PR  feature → develop
         uses: repo-sync/pull-request@v2
         with:
-          source_branch: "feature/python-code"
+          source_branch: "feature/*"
           destination_branch: "develop"
-          pr_title: "Auto PR: Merge feature/python-code → develop"
+          pr_title: "Auto PR: Merge feature/* → develop"
           pr_body: "Automatically created PR to merge feature code into develop"
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -30,7 +30,7 @@ jobs:
 
       - name: Auto-merge feature → develop
         run: |
-          gh pr list --state open --head feature/python-code --base develop --json number -q '.[0].number' > pr.txt
+          gh pr list --state open --head feature/* --base develop --json number -q '.[0].number' > pr.txt
           PR_NUM=$(cat pr.txt)
           if [ "$PR_NUM" != "" ]; then
             gh pr merge "$PR_NUM" --squash --admin --delete-branch --yes
@@ -45,7 +45,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Create PR: develop → main
+      - name: Create PR from develop → main
         uses: repo-sync/pull-request@v2
         with:
           source_branch: "develop"
