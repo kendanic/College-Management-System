@@ -7,7 +7,7 @@ permissions:
 on:
   push:
     branches:
-      - feature/*
+      - ${{ github.ref_name }}
   
 jobs:
   feature_to_develop:
@@ -21,7 +21,7 @@ jobs:
         with:
           source_branch: "${{ github.ref_name }}"
           destination_branch: "develop"
-          pr_title: "Auto PR: Merge feature/* → develop"
+          pr_title: "Auto PR: Merge ${{ github.ref_name }} → develop"
           pr_body: "Automatically created PR to merge feature code into develop"
           github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
@@ -34,7 +34,7 @@ jobs:
 
       - name: Auto-merge feature → develop
         run: |
-          gh pr list --state open --head feature/* --base develop --json number -q '.[0].number' > pr.txt
+          gh pr list --state open --head ${{ github.ref_name }} --base develop --json number -q '.[0].number' > pr.txt
           PR_NUM=$(cat pr.txt)
           if [ "$PR_NUM" != "" ]; then
             gh pr merge "$PR_NUM" --squash --admin --delete-branch --yes
