@@ -1,0 +1,73 @@
+name: "Auto PR and Merge: feature → develop → main"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  push:
+    branches:
+      - feature/*
+  
+jobs:
+  feature_to_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Create PR  feature → develop
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "${{ github.ref_name }}"
+          destination_branch: "develop"
+          pr_title: "Auto PR: Merge feature/* → develop"
+          pr_body: "Automatically created PR to merge feature code into develop"
+          github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  merge_feature_to_develop:
+    needs: feature_to_develop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Auto-merge feature → develop
+        run: |
+          gh pr list --state open --head feature/* --base develop --json number -q '.[0].number' > pr.txt
+          PR_NUM=$(cat pr.txt)
+          if [ "$PR_NUM" != "" ]; then
+            gh pr merge "$PR_NUM" --squash --admin --delete-branch --yes
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  # develop_to_main:
+  #   needs: merge_feature_to_develop
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+
+  #     - name: Create PR from develop → main
+  #       uses: repo-sync/pull-request@v2
+  #       with:
+  #         source_branch: "develop"
+  #         destination_branch: "main"
+  #         pr_title: "Auto PR: Merge develop → main"
+  #         pr_body: "Auto promote develop to main after feature merge"
+  #         github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  # merge_develop_to_main:
+  #   needs: develop_to_main
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Auto-merge develop → main
+  #       run: |
+  #         gh pr list --state open --head develop --base main --json number -q '.[0].number' > pr.txt
+  #         PR_NUM=$(cat pr.txt)
+  #         if [ "$PR_NUM" != "" ]; then
+  #           gh pr merge "$PR_NUM" --squash --admin --delete-branch --yes
+  #         fi
+  #       env:
+  #         GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
