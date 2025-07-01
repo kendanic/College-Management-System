@@ -3,7 +3,7 @@ name: Auto PR and Merge: feature → develop → main
 on:
   push:
     branches:
-      - feature/python-code
+      - feature/*
 
 jobs:
   feature_to_develop:
