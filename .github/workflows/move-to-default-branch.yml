@@ -1,0 +1,25 @@
+name: Move Data to Default Branch
+
+on:
+  push:
+    branches:
+      - feature/enhancement
+
+jobs:
+  move-to-default:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge changes into default branch
+        run: |
+          git checkout develop  # Replace with your default branch name
+          git merge feature/enhancement
+          git push origin develop
