@@ -1,0 +1,28 @@
+name: Move Data to Default Branch
+
+on:
+  push:
+    branches:
+      - feature/*
+
+jobs:
+  move-to-default:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 👈 Required to fetch all history and branches
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Switch to develop and merge changes
+        run: |
+          git fetch origin develop
+          git checkout develop
+          git merge origin/${{ github.ref_name }}
+          git push origin develop
